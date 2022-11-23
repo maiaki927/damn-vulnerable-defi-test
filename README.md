@@ -17,7 +17,9 @@ DO NOT USE IN PRODUCTION.
 # 解法紀錄
 
 ## 1	Unstoppable
+
 - 目標
+
 讓所有人都不可以執行flashLoan(搞壞他)
 
 - 問題程式
@@ -26,12 +28,18 @@ UnstoppableLender.sol的flashLoan
     assert(poolBalance == balanceBefore);
     ```
     poolBalance來自於呼叫depositTokens function中才會增加
+    
     balanceBefore則是當下合約的token數量
+    
 
     所以只要不透過depositTokens
+    
     直接把token打進去合約裡
+    
     就不會改變poolBalance
+    
     但是能改變balanceBefore
+    
     即可以觸發assert
 
 - 前端程式
@@ -45,7 +53,9 @@ UnstoppableLender.sol的flashLoan
 
 
 ## 2	Naive receiver
+
 - 目標
+
 receiver的token轉回pool
 
 - 問題程式
@@ -61,14 +71,19 @@ receiver的token轉回pool
             pool.sendValue(amountToBeRepaid);
     ```
     最後會轉amountToBeRepaid回pool
+    
     amountToBeRepaid=msg.value + fee;
+    
     fee又等於1 ether (NaiveReceiverLenderPool.sol)
 
     receiver初始化只有10顆
+    
     所以執行10次flashLoan之後
+    
     全部的資金就沒了
 
 - 前端程式
+- 
     ```javascript=
     it('Exploit', async function () {
             /** CODE YOUR EXPLOIT HERE */   
@@ -79,14 +94,19 @@ receiver的token轉回pool
     ```
     
     理論上好像執行一次讓msg.value帶9顆也可以
+    
     還沒嘗試
 
 ## 3	Truster
+
 - 目標
+
 把Pool所有token轉到attacker
 
 - 問題程式
+
 TrusterLenderPool.sol的flashLoan
+
     ```solidity=
      function flashLoan(
             uint256 borrowAmount,
@@ -107,13 +127,18 @@ TrusterLenderPool.sol的flashLoan
             require(balanceAfter >= balanceBefore, "Flash loan hasn't been paid back");
         }
     ```
+    
     由於這裡沒有驗證任何東西
+    
     所以只要把target填token合約
+    
     並用data調用approve給attacker
+    
     最後直接用transferFrom把錢領走即可
 
 
 - 前端程式
+    
     ```javascript=
         it('Exploit', async function () {
             /** CODE YOUR EXPLOIT HERE  */
@@ -121,36 +146,49 @@ TrusterLenderPool.sol的flashLoan
             await this.token.connect(attacker).transferFrom(this.pool.address,attacker.address, TOKENS_IN_POOL);
         });
     ```
+    
     由於找不到ethers中怎麼搞出data
+    
     這裡的data是由solidity生成
     ```solidity=
      abi.encodeWithSignature("approve(address,uint256)", 0x70997970C51812dc3A010C7d01b50e0d17dc79C8,1000000 ether); 
     ```
 ## 4	Side entrance
 - 目標
+
 把Pool所有token轉到attacker
 
 - 問題程式
+
 SideEntranceLenderPool.sol的flashLoan
 
     ```solidity=
     require(address(this).balance >= balanceBefore, "Flash loan hasn't been paid back");     
     ```
     最後驗證只看合約的balance
+    
     但同時合約又提供了
+    
     deposit()跟withdraw()
 
     於是可以透過flashLoan的execute執行自己合約時
+    
     將flashLoan來的token 丟到deposit()
+    
     這樣便可以通過flashLoan的驗證
+    
     但是也存在新的deposit地址(我的合約)
+    
     於是可以在合約中執行withdraw()
+    
     把token提出來並且打給題目要求的attacker
 
 - 合約程式
+
 https://gist.github.com/maiaki927/4a31b8cec904a2c6a827bbf6ba8fb2f8
 
 - 前端程式
+
 ```javascript=
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */      
