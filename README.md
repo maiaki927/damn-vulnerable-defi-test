@@ -186,7 +186,7 @@ DO NOT USE IN PRODUCTION.
 
 - 合約程式
 
-    https://github.com/maiaki927/damn-vulnerable-defi-test/blob/611ff343419e247d5578ed166e8a7f5a735e326e/contracts/side-entrance/SideEntranceLenderPool_test.sol
+    [SideEntranceLenderPool_test.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/611ff343419e247d5578ed166e8a7f5a735e326e/contracts/side-entrance/SideEntranceLenderPool_test.sol)
 
 - 前端程式
 
@@ -220,7 +220,7 @@ DO NOT USE IN PRODUCTION.
     轉出給attacker即可
 
 - 合約程式
-    https://gist.github.com/maiaki927/fc3dbfe855a819d6938596c64a5749f7
+    [Test.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/611ff343419e247d5578ed166e8a7f5a735e326e/contracts/the-rewarder/Test.sol)
 
 - 前端程式
     ```javascript=
