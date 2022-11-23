@@ -202,10 +202,15 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
                 }
     ```
     對於驗證時間_hasRetrievedReward沒有判斷是不是deposit是不過了五天
+    
     所以可以再過了五天後馬上deposit就取得token
+    
     即可以跟上一題一樣flashloan借很多錢丟進去deposit
+    
     然後去call distributeRewards()
+    
     分到token再還flashloan
+    
     轉出給attacker即可
 
 - 合約程式
