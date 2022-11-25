@@ -232,11 +232,11 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
 ## 6	The Selfie
 - 目標
 
-讓attacker拿走SelfiePool裡全部token
+    讓attacker拿走SelfiePool裡全部token
 
 - 問題程式
 
-SimpleGovernance.sol的SimpleGovernance
+    SimpleGovernance.sol的SimpleGovernance
 
     ```solidity=
     function _hasEnoughVotes(address account) private view returns (bool) {
@@ -260,7 +260,7 @@ SimpleGovernance.sol的SimpleGovernance
 
 - 合約程式
 
-[SelfieAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/selfie/SelfieAttack.sol)
+    [SelfieAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/selfie/SelfieAttack.sol)
 
 - 前端程式
 
@@ -283,13 +283,13 @@ SimpleGovernance.sol的SimpleGovernance
 
 - 目標
 
-讓attacker拿走Exchange裡全部token
+    讓attacker拿走Exchange裡全部token
 
 - 問題
 
-在題目中的兩段內文可以取得兩個私鑰
+    在題目中的兩段內文可以取得兩個私鑰
 
-這邊透過python解析
+    這邊透過python解析
 
     ```python=
     import base64
