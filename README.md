@@ -305,10 +305,12 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
     
     又因取得價格的方式是先排序
     
-    如果Oracle不為二(題目為三)
+    如果Oracle不為二的倍數
     
     則取中間價格作為價格
     
+    因題目為三
+
     所以只要控制了兩個Oracle 必定可以控制NFT價格
     
     最後就可以買超便宜的價格 賣他超貴
