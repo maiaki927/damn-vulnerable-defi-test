@@ -7,7 +7,7 @@ import "./FlashLoanerPool.sol";
 import "./RewardToken.sol";
 import "../DamnValuableToken.sol";
 
-contract Test {
+contract TheRewarderAttack {
 
     TheRewarderPool public immutable theRewarderPool;
     FlashLoanerPool public immutable flashLoanPool;

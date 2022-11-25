@@ -11,10 +11,10 @@ interface IFlashLoanEtherReceiver {
 }
 
 /**
- * @title SideEntranceLenderPool_test
+ * @title SideEntranceAttack
  * @author Damn Vulnerable DeFi (https://damnvulnerabledefi.xyz)
  */
-contract SideEntranceLenderPool_test {
+contract SideEntranceAttack {
 
     IFlashLoanEtherReceiver private immutable pool;
     address IFlashLoanEtherReceiver_add;

@@ -58,12 +58,11 @@ contract SimpleGovernance {
         
         GovernanceAction storage actionToExecute = actions[actionId];
         actionToExecute.executedAt = block.timestamp;
-
         actionToExecute.receiver.functionCallWithValue(
             actionToExecute.data,
             actionToExecute.weiAmount
         );
-
+        
         emit ActionExecuted(actionId, msg.sender);
     }
 
