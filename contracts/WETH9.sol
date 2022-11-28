@@ -20,7 +20,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 pragma solidity ^0.7.0;
-
+import "hardhat/console.sol";
 contract WETH9 {
     string public name     = "Wrapped Ether";
     string public symbol   = "WETH";
@@ -68,7 +68,7 @@ contract WETH9 {
         public
         returns (bool)
     {
-        require(balanceOf[src] >= wad);
+        require(balanceOf[src] >= wad,"not");
 
         if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
             require(allowance[src][msg.sender] >= wad);

@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "../DamnValuableToken.sol";
 
+
 /**
  * @title PuppetPool
  * @author Damn Vulnerable DeFi (https://damnvulnerabledefi.xyz)
@@ -23,7 +24,7 @@ contract PuppetPool is ReentrancyGuard {
         token = DamnValuableToken(tokenAddress);
         uniswapPair = uniswapPairAddress;
     }
-
+//2
     // Allows borrowing `borrowAmount` of tokens by first depositing two times their value in ETH
     function borrow(uint256 borrowAmount) public payable nonReentrant {
         uint256 depositRequired = calculateDepositRequired(borrowAmount);
@@ -43,13 +44,15 @@ contract PuppetPool is ReentrancyGuard {
     }
 
     function calculateDepositRequired(uint256 amount) public view returns (uint256) {
+ 
         return amount * _computeOraclePrice() * 2 / 10 ** 18;
     }
 
     function _computeOraclePrice() private view returns (uint256) {
         // calculates the price of the token in wei according to Uniswap pair
+          
         return uniswapPair.balance * (10 ** 18) / token.balanceOf(uniswapPair);
-    }
+    }//(1)
 
      /**
      ... functions to deposit, redeem, repay, calculate interest, and so on ...
