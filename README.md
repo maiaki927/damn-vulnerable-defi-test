@@ -433,4 +433,75 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
             await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE);
         });
     ```
+---
+
+## 10 Free rider
+
+- 目標
+    
+    讓attacker拿走所有的NFT賣給收的人獲得45ETH
+
+- 問題程式
+    
+    FreeRiderNFTMarketplace.sol裡的_buyOne
+    
+    只有驗證
+    
+    `require(msg.value >= priceToPay, "Amount paid is not enough");`
+    
+    也就是我只要付了一個NFT的錢就可以拿走所有的NFT
+    
+    但是attacker的錢仍然不夠一個買NFT(15 ETH)
+    
+    合約看起來沒有其他地方可以撈錢
+   
+    但引入了UNI v2可以通過閃電貸試試
+    
+    [參考閃電貸官方文件](https://docs.uniswap.org/contracts/v2/guides/smart-contract-integration/using-flash-swaps)
+
+    在test宣告的UNI池子是wETH對
+    
+    所以可以通過閃電交易得到wETH
+    
+    然後把wETH換成ETH
+    
+    去購買NFT
+    
+    然後把NFT轉給買家獲得ETH(透過safeTransferFrom)
+    
+    然後還錢的時候記得手續費有0.3%所以還的時候要多一點
+    
+    
+    比較麻煩的事情是uni v2跟wETH的版本比較救
+    
+    沒辦法import
+    
+- 合約程式
+    
+    [FreeRiderBuyerAttack.sol](https://github.com/maiaki927/damn-vulnerable-defi-test/blob/master/contracts/free-rider/FreeRiderBuyerAttack.sol)
+
+- 前端程式
+    
+    ```javascript=
+     it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */
+        this.freeRiderBuyerAttack = await (await ethers.getContractFactory(
+            'FreeRiderBuyerAttack', attacker
+            )).deploy(
+                this.buyerContract.address,
+                this.marketplace.address,
+                this.uniswapPair.address,
+                this.nft.address,
+                this.weth.address
+                );
+                
+        await this.freeRiderBuyerAttack.connect(attacker).flashLoan();
+
+    });
+    ```
+    
+
+
+---
+
 
