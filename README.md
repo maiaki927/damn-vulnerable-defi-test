@@ -472,9 +472,9 @@ Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
     然後還錢的時候記得手續費有0.3%所以還的時候要多一點
     
     
-    比較麻煩的事情是uni v2跟wETH的版本比較救
+    比較麻煩的事情是uni v2跟wETH的版本比較舊
     
-    沒辦法import
+    沒辦法直接import
     
 - 合約程式
     
