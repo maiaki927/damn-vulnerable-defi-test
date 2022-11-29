@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-
+import "hardhat/console.sol";
 /**
  * @title FreeRiderBuyer
  * @author Damn Vulnerable DeFi (https://damnvulnerabledefi.xyz)

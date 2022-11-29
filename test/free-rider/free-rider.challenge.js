@@ -111,8 +111,11 @@ describe('[Challenge] Free Rider', function () {
                 this.buyerContract.address,
                 this.marketplace.address,
                 this.uniswapPair.address,
-                this.nft.address);
-        await this.freeRiderBuyerAttack.connect(attacker).flashLoan(15);
+                this.nft.address,
+                this.weth.address
+                );
+                
+        await this.freeRiderBuyerAttack.connect(attacker).flashLoan();
 
     });
 
